@@ -10,6 +10,8 @@ export default function Home() {
   const [type, setType] = useState("expense");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
+  const [isOpen,setIsOpen]=useState(true);
+  const [editData,setEditData]=useState<Transaction|null>(null);
 
   const fetchdata = async () => {
     const res = await fetch("/api/transactions");
@@ -46,10 +48,28 @@ export default function Home() {
     fetchdata();
   };
 
-  const updateTransaction =async (id:string)=>{
-    
-
+  const handleEdit=(t:any)=>{
+    setEditData(t);
+    setIsOpen(true);
   }
+
+  const handleUpdate=async ()=>{
+    if(!editData) return;
+      await fetch("/api/transactions", {
+        method: "PUT",
+        body: JSON.stringify({
+          id: editData.id,
+          amount: Number(editData?.amount),
+          type: editData.type,
+          category: editData.category,
+          description: editData.description,
+        }),
+      });
+      setIsOpen(true);
+      fetchdata();
+  }
+
+
 
   const totalIncome = transactions
     .filter((t: Transaction) => t.type === "income")
@@ -150,6 +170,74 @@ const COLORS = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6"];
         </button>
       </form>
 
+      {isOpen &&editData && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-gray-700 p-6 rounded-lg w-80 space-y-3">
+            <h2 className="text-lg font-semibold">Edit Transaction</h2>
+
+            <input
+              type="number"
+              value={editData.amount}
+              onChange={(e) =>
+                setEditData({ ...editData, amount: Number(e.target.value) })
+              }
+              className="w-full border p-2"
+            />
+
+            <select
+              value={editData.type}
+              onChange={(e) =>
+                setEditData({ ...editData, type: e.target.value })
+              }
+              className="w-full border p-2"
+            >
+              <option value="expense" className="bg-gray-500">Expense</option>
+              <option value="income" className="bg-gray-500">Income</option>
+            </select>
+
+            <select
+              value={editData.category}
+              onChange={(e) =>
+                setEditData({ ...editData, category: e.target.value })
+              }
+              className="w-full border p-2"
+            >
+              <option value="food" className="bg-gray-500">Food</option>
+              <option value="travel" className="bg-gray-500">Travel</option>
+              <option value="shopping" className="bg-gray-500">Shopping</option>
+              <option value="academics" className="bg-gray-500">Academics</option>
+              <option value="other" className="bg-gray-500">Other</option>
+            </select>
+
+            <input
+              type="text"
+              value={editData.description || ""}
+              onChange={(e) =>
+                setEditData({ ...editData, description: e.target.value })
+              }
+              className="w-full border p-2"
+              placeholder="Description"
+            />
+
+            <div className="flex justify-between">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-gray-500"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleUpdate}
+                className="bg-blue-800 text-white px-4 py-2 rounded"
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div>
         <h2>Transaction History</h2>
 
@@ -167,6 +255,14 @@ const COLORS = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6"];
                 ₹{t.amount}
               </span>
               <span>{t.description}</span>
+
+             
+              <button
+                onClick={() => handleEdit(t)}
+                className="ml-2 bg-yellow-500 rounded-md h-6 w-14 cursor-pointer"
+              >
+                Edit
+              </button>
 
               <button
                 onClick={() => deleteTransaction(t.id)}
@@ -204,24 +300,22 @@ const COLORS = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6"];
         </BarChart>
       </div>
 
-      <div >
+      <div>
+        {categoryTotals.length > 0 && <h2>Pie Chart</h2>}
         {categoryTotals.length > 0 && (
-          <h2>Pie Chart</h2>
-        )}
-        {categoryTotals.length > 0 && (
-        <PieChart width={400} height={400} className="bg-red-300">
-          <Pie
-            data={categoryTotals}
-            dataKey="amount"
-            nameKey="name"
-            outerRadius={80}
-          >
-            {categoryTotals.map((entry: any, index: number) => (
-              <Cell key={index} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
+          <PieChart width={400} height={400} className="bg-red-300">
+            <Pie
+              data={categoryTotals}
+              dataKey="amount"
+              nameKey="name"
+              outerRadius={80}
+            >
+              {categoryTotals.map((entry: any, index: number) => (
+                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
         )}
       </div>
     </div>
