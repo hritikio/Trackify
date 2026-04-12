@@ -1,65 +1,229 @@
-import Image from "next/image";
+"use client";
+import React, { ReactEventHandler, useEffect, useState } from "react";
+import { Transaction } from "./generated/prisma/client";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { PieChart,Pie,Cell } from "recharts";
 
 export default function Home() {
+  const [transactions, setTransactions] = useState([]);
+  const [amount, setAmount] = useState("");
+  const [type, setType] = useState("expense");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+
+  const fetchdata = async () => {
+    const res = await fetch("/api/transactions");
+    const data = await res.json();
+    console.log("detchdata is ", data);
+    setTransactions(data);
+  };
+
+  const handlesubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await fetch("/api/transactions", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ amount: Number(amount), type, category, description }),
+    });
+    setAmount("");
+    setCategory("");
+    setDescription("");
+    setType("expense");
+    fetchdata();
+  };
+
+  const deleteTransaction = async (id: string) => {
+    await fetch("/api/transactions", {
+      method: "DELETE",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ id: id }),
+    });
+
+    fetchdata();
+  };
+
+  const updateTransaction =async (id:string)=>{
+    
+
+  }
+
+  const totalIncome = transactions
+    .filter((t: Transaction) => t.type === "income")
+    .reduce((acc: any, t: Transaction) => acc + t.amount, 0);
+  const totalExpenses = transactions
+    .filter((t: Transaction) => t.type === "expense")
+    .reduce((acc: any, t: Transaction) => acc + t.amount, 0);
+
+  const chartData = [
+    { name: "Income", value: totalIncome },
+    { name: "Expenses", value: totalExpenses },
+  ];
+
+
+  const categoryTotals=Object.values( transactions.reduce((acc:any,t:Transaction)=>{
+      if(t.type==="expense"){
+
+        //create a new object for new category if it doesnt exist or else add amount in existing 
+        if(!acc[t.category]){
+          acc[t.category]={
+            name:t.category,
+            amount:0
+          }
+        }
+
+        acc[t.category].amount+=t.amount;
+      }
+
+      return acc;
+  },{})
+)
+
+const COLORS = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6"];
+
+
+  useEffect(() => {
+    fetchdata();
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div>
+      <h1>Trackify Moeny tracker </h1>
+
+      <form onSubmit={handlesubmit}>
+        <input
+          required
+          type="number"
+          value={amount}
+          placeholder="Amount"
+          onChange={(e) => setAmount(e.target.value)}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          className="bg-blue-400"
+        >
+          <option value="expense">Expense</option>
+          <option value="income">Income</option>
+        </select>
+
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full border p-2  "
+          required
+        >
+          <option value="" disabled className="bg-gray-100 text-black">
+            Select category
+          </option>
+          <option value="food" className="bg-gray-500 text-black">
+            Food
+          </option>
+          <option value="travel" className="bg-gray-500 text-black">
+            Travel
+          </option>
+          <option value="shopping" className="bg-gray-500 text-black">
+            Shopping
+          </option>
+          <option value="academics" className="bg-gray-500 text-black">
+            Academics
+          </option>
+          <option value="other" className="bg-gray-500 text-black">
+            Other
+          </option>
+        </select>
+
+        <input
+          type="text"
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full border p-2"
+        />
+
+        <button className="bg-gray-800/40  text-white px-4 py-2 w-full cursor-pointer mt-2">
+          Add Transaction
+        </button>
+      </form>
+
+      <div>
+        <h2>Transaction History</h2>
+
+        {transactions.map((t: Transaction) => {
+          return (
+            <div
+              key={t.id}
+              className="border w-[25%] h-16 flex gap-4 items-center"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <span>{t.category}</span>
+              <span>{t.type}</span>
+              <span
+                className={`${t.type === "income" ? "text-green-500" : "text-red-500"}`}
+              >
+                ₹{t.amount}
+              </span>
+              <span>{t.description}</span>
+
+              <button
+                onClick={() => deleteTransaction(t.id)}
+                className="ml-4 bg-blue-500 rounded-md h-6 w-14 cursor-pointer"
+              >
+                Delete{" "}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="ml-[400px]">
+        <h2>Analytics</h2>
+        <div>
+          <h1>Total Income: ₹{totalIncome}</h1>
+          <h1>Total Expenses: ₹{totalExpenses}</h1>
+          <h1>Balance: ₹{totalIncome - totalExpenses}</h1>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </div>
+
+      {/* 
+  const chartData=[
+  {name:"Income", value:totalIncome},
+  {name:"Expenses", value:totalExpenses}
+] */}
+
+      <div>
+        <h2>Bar Chart </h2>
+        <BarChart width={300} height={300} data={chartData}>
+          <XAxis dataKey="name" />
+          <YAxis />
+          <CartesianGrid strokeDasharray="3 3" />
+          <Bar dataKey="value" fill="#8884d8" />
+        </BarChart>
+      </div>
+
+      <div >
+        {categoryTotals.length > 0 && (
+          <h2>Pie Chart</h2>
+        )}
+        {categoryTotals.length > 0 && (
+        <PieChart width={400} height={400} className="bg-red-300">
+          <Pie
+            data={categoryTotals}
+            dataKey="amount"
+            nameKey="name"
+            outerRadius={80}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            {categoryTotals.map((entry: any, index: number) => (
+              <Cell key={index} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip />
+        </PieChart>
+        )}
+      </div>
     </div>
   );
 }
