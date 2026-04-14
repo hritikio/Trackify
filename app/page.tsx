@@ -40,7 +40,7 @@ export default function Home() {
     await fetch("/api/transactions", {
       method: "DELETE",
       headers: {
-        "content-type": "application/json",
+        "content-type": "applicationjson/",
       },
       body: JSON.stringify({ id: id }),
     });
@@ -65,7 +65,7 @@ export default function Home() {
           description: editData.description,
         }),
       });
-      setIsOpen(true);
+      setIsOpen(false);
       fetchdata();
   }
 

@@ -46,17 +46,20 @@ export async function DELETE(req: Request) {
 }
 
 
-export async function UPDATE(req:Request){
-  const body = req.json();
+export async function PUT(req:Request){
+  const body = await req.json();
   console.log("update body is ",body);
   await prisma.transaction.update({
-    where:{
-      id:body.id
+    where: {
+      id: body.id,
     },
-    data:{
-      
+    data: {
+      amount: body.amount,
+      type: body.type,
+      category: body.category,
+      description: body.description,
+    },
 
-    }
-  })
+  });
 
 }

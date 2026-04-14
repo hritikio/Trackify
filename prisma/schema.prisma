@@ -22,4 +22,16 @@ model Transaction{
   category String
   description  String? @default("")
   createdAt DateTime @default(now())
+  userid String 
+  user User @relation(fields: [userid],references: [id])
+}
+
+model User{
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  password String 
+  createdAt DateTime @default(now())
+  transaction Transaction[]
+
 }
