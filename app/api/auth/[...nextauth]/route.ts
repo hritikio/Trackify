@@ -1,3 +1,5 @@
+//for Login 
+
 import prisma from "@/app/lib/prisma";
 import bcrypt from "bcrypt";
 import CredentialsProvider from "next-auth/providers/credentials";

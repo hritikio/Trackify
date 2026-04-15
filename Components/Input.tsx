@@ -8,9 +8,11 @@ type InputProps = {
   image: string | StaticImageData;
   placeholder?: string;
   isPassword?: boolean;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  name?: string;
 };
 
-const Input = ({ image, placeholder, isPassword = false }: InputProps) => {
+const Input = ({ image, placeholder, isPassword = false,onChange,name }: InputProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -23,6 +25,8 @@ const Input = ({ image, placeholder, isPassword = false }: InputProps) => {
         type={isPassword && !showPassword ? "password" : "text"}
         placeholder={placeholder}
         className="flex-1 px-2 outline-none text-md "
+        onChange={onChange}
+        name={ name}
       />
 
       {/* RIGHT EYE ICON (only for password) */}

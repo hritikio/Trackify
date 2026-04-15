@@ -1,9 +1,37 @@
-import React from "react";
+"use client"
+import { useState  } from "react";
 import Image from "next/image";
 import { Button, Input } from "@/Components";
-import { Mail } from "lucide-react";
+
 
 const Signup = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+
+  const handleSubmit=async()=>{
+    const res = await fetch("/api/auth/signup",{
+      method:"POST",
+      headers:{
+        "content-type":"application/json"
+      },
+      body:JSON.stringify({
+        name,email,password
+      })
+    })
+
+    const data=await res.json();
+
+    if(res.ok){
+      alert("Signup successful!");
+      window.location.href="/login"
+    }else{
+      alert(data.error || "Signup Failed")
+    }
+  };
+
   return (
     <div className="bg-white min-h-screen text-black border justify-center items-center flex  ">
       <div className="flex ">
@@ -29,10 +57,22 @@ const Signup = () => {
             <p className="text-[#999999]">or use your gmail for registration</p>
           </div>
           <div className="flex flex-col items-center gap-4   mt-8  ">
-            <Input placeholder="Name" image="/user.svg" />
-            <Input placeholder="Email" image="/mail.svg"/>
-            <Input placeholder="Password" isPassword={true} image="/lock-keyhole.svg" />
-            <Input placeholder="Confirm Password" isPassword={true} image="/lock-keyhole.svg" />
+            <Input placeholder="Name" image="/user.svg" name="name" onChange={(e) => setName(e.target.value)} />
+            <Input placeholder="Email" image="/mail.svg" name="email" onChange={(e) => setEmail(e.target.value)} />
+            <Input
+              placeholder="Password"
+              isPassword={true}
+              image="/lock-keyhole.svg"
+              name="password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Input
+              placeholder="Confirm Password"
+              isPassword={true}
+              image="/lock-keyhole.svg"
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+            <Button Classname="w-[160px]  text-white "  onclick={handleSubmit}>SIGN UP</Button>
           </div>
         </div>
       </div>
