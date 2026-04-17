@@ -7,11 +7,11 @@ type ButtonProps = {
   
 };
 
-const Button = ({ children,Classname="" ,onclick}: ButtonProps) => {
+const Button = ({ children,Classname="",onclick}: ButtonProps) => {
   
   
     return (
-      <button className={`h-10 bg-[#00B894] rounded-md ${Classname}`} onClick={onclick}>
+      <button className={`h-10 bg-[#00B894] rounded-md  cursor-pointer ${Classname}`} onClick={onclick}>
         {children}
       </button>
     );

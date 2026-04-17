@@ -13,7 +13,10 @@ export const authoptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
-      credentials: {},
+      credentials: {
+  // email: { label: "Email", type: "text" },
+  // password: { label: "Password", type: "password" },
+},
 
       async authorize(credentials: any) {
         const user = await prisma.user.findUnique({
