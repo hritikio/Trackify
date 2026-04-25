@@ -1,4 +1,7 @@
-//for Login 
+//for Login go to api/auth/signin  
+//123@gmail.com
+//1234
+
 
 import prisma from "@/app/lib/prisma";
 import bcrypt from "bcrypt";
@@ -14,8 +17,8 @@ export const authoptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-  // email: { label: "Email", type: "text" },
-  // password: { label: "Password", type: "password" },
+  email: { label: "Email", type: "text" },
+  password: { label: "Password", type: "password" },
 },
 
       async authorize(credentials: any) {
@@ -24,7 +27,7 @@ export const authoptions: NextAuthOptions = {
         });
 
         if (!user) {
-          throw new Error("User not found");
+          return null;
         }
 
         const isValid = await bcrypt.compare(

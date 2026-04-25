@@ -10,6 +10,7 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [issamePass, setIsSamePass]=useState(true);
+  const [loading,setloading]=useState(false);
   
 
 
@@ -36,6 +37,7 @@ const Signup = () => {
       redirect("/");
     }else{
       alert(data.error || "Signup Failed")
+      setloading(false);
     }
   };
 
@@ -54,7 +56,7 @@ const Signup = () => {
           <div className="text-white   mt-[216px] flex flex-col items-center ">
             <p className="font-bold text-4xl">Welcome Back!</p>
             <p className="mt-[12px]">Log in to manage your Finances</p>
-            <Button Classname="w-[160px] mt-3 focus:contrast-120 " onclick={()=>router.push("/login")}>
+            <Button Classname="w-[160px] mt-3 focus:contrast-120 " onClick={()=>router.push("/login")}>
               SIGN IN
             </Button>
           </div>
@@ -71,6 +73,7 @@ const Signup = () => {
               image="/user.svg"
               name="name"
               onChange={(e) => setName(e.target.value)}
+              
             />
             <Input
               placeholder="Email"
@@ -82,7 +85,6 @@ const Signup = () => {
               placeholder="Password"
               isPassword={true}
               image="/lock-keyhole.svg"
-              name="password"
               onChange={(e) => setPassword(e.target.value)}
             />
             <Input
@@ -93,7 +95,8 @@ const Signup = () => {
             />
             <Button
               Classname="w-[160px]  text-white focus:contrast-150 "
-              onclick={handleSubmit}
+              onClick={()=>{handleSubmit(); setloading(true)}}
+              loading={loading}
             >
               SIGN UP
             </Button>
