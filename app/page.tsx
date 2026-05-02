@@ -1,22 +1,26 @@
 "use client";
-import React, { ReactEventHandler, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Transaction } from "./generated/prisma/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
-import { PieChart,Pie,Cell } from "recharts";
+import { PieChart, Pie, Cell } from "recharts";
 
 export default function Home() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [transactions, setTransactions] = useState([]);
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("expense");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
-  const [isOpen,setIsOpen]=useState(true);
-  const [editData,setEditData]=useState<Transaction|null>(null);
+  const [isOpen, setIsOpen] = useState(true);
+  const [editData, setEditData] = useState<Transaction | null>(null);
 
   const fetchdata = async () => {
     const res = await fetch("/api/transactions");
     const data = await res.json();
-    console.log("detchdata is ", data);
+    console.log("fetchdata is ", data);
     setTransactions(data);
   };
 
@@ -27,7 +31,12 @@ export default function Home() {
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ amount: Number(amount), type, category, description }),
+      body: JSON.stringify({
+        amount: Number(amount),
+        type,
+        category,
+        description,
+      }),
     });
     setAmount("");
     setCategory("");
@@ -40,7 +49,7 @@ export default function Home() {
     await fetch("/api/transactions", {
       method: "DELETE",
       headers: {
-        "content-type": "applicationjson/",
+        "content-type": "application/json",
       },
       body: JSON.stringify({ id: id }),
     });
@@ -48,28 +57,26 @@ export default function Home() {
     fetchdata();
   };
 
-  const handleEdit=(t:any)=>{
+  const handleEdit = (t: any) => {
     setEditData(t);
     setIsOpen(true);
-  }
+  };
 
-  const handleUpdate=async ()=>{
-    if(!editData) return;
-      await fetch("/api/transactions", {
-        method: "PUT",
-        body: JSON.stringify({
-          id: editData.id,
-          amount: Number(editData?.amount),
-          type: editData.type,
-          category: editData.category,
-          description: editData.description,
-        }),
-      });
-      setIsOpen(false);
-      fetchdata();
-  }
-
-
+  const handleUpdate = async () => {
+    if (!editData) return;
+    await fetch("/api/transactions", {
+      method: "PUT",
+      body: JSON.stringify({
+        id: editData.id,
+        amount: Number(editData?.amount),
+        type: editData.type,
+        category: editData.category,
+        description: editData.description,
+      }),
+    });
+    setIsOpen(false);
+    fetchdata();
+  };
 
   const totalIncome = transactions
     .filter((t: Transaction) => t.type === "income")
@@ -83,31 +90,45 @@ export default function Home() {
     { name: "Expenses", value: totalExpenses },
   ];
 
-
-  const categoryTotals=Object.values( transactions.reduce((acc:any,t:Transaction)=>{
-      if(t.type==="expense"){
-
-        //create a new object for new category if it doesnt exist or else add amount in existing 
-        if(!acc[t.category]){
-          acc[t.category]={
-            name:t.category,
-            amount:0
-          }
+  const categoryTotals = Object.values(
+    transactions.reduce((acc: any, t: Transaction) => {
+      if (t.type === "expense") {
+        //create a new object for new category if it doesnt exist or else add amount in existing
+        if (!acc[t.category]) {
+          acc[t.category] = {
+            name: t.category,
+            amount: 0,
+          };
         }
 
-        acc[t.category].amount+=t.amount;
+        acc[t.category].amount += t.amount;
       }
 
       return acc;
-  },{})
-)
+    }, {}),
+  );
 
-const COLORS = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6"];
-
+  const COLORS = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6"];
 
   useEffect(() => {
-    fetchdata();
-  }, []);
+    if (status === "authenticated") {
+      fetchdata();
+    }
+  }, [status]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace("/login");
+    }
+  }, [status, router]);
+
+  if (status === "loading") {
+    return <div className="p-4">Loading...</div>;
+  }
+
+  if (!session) {
+    return null;
+  }
 
   return (
     <div>
@@ -170,7 +191,7 @@ const COLORS = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6"];
         </button>
       </form>
 
-      {isOpen &&editData && (
+      {isOpen && editData && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
           <div className="bg-gray-700 p-6 rounded-lg w-80 space-y-3">
             <h2 className="text-lg font-semibold">Edit Transaction</h2>
@@ -191,8 +212,12 @@ const COLORS = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6"];
               }
               className="w-full border p-2"
             >
-              <option value="expense" className="bg-gray-500">Expense</option>
-              <option value="income" className="bg-gray-500">Income</option>
+              <option value="expense" className="bg-gray-500">
+                Expense
+              </option>
+              <option value="income" className="bg-gray-500">
+                Income
+              </option>
             </select>
 
             <select
@@ -202,11 +227,21 @@ const COLORS = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6"];
               }
               className="w-full border p-2"
             >
-              <option value="food" className="bg-gray-500">Food</option>
-              <option value="travel" className="bg-gray-500">Travel</option>
-              <option value="shopping" className="bg-gray-500">Shopping</option>
-              <option value="academics" className="bg-gray-500">Academics</option>
-              <option value="other" className="bg-gray-500">Other</option>
+              <option value="food" className="bg-gray-500">
+                Food
+              </option>
+              <option value="travel" className="bg-gray-500">
+                Travel
+              </option>
+              <option value="shopping" className="bg-gray-500">
+                Shopping
+              </option>
+              <option value="academics" className="bg-gray-500">
+                Academics
+              </option>
+              <option value="other" className="bg-gray-500">
+                Other
+              </option>
             </select>
 
             <input
@@ -256,7 +291,6 @@ const COLORS = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6"];
               </span>
               <span>{t.description}</span>
 
-             
               <button
                 onClick={() => handleEdit(t)}
                 className="ml-2 bg-yellow-500 rounded-md h-6 w-14 cursor-pointer"

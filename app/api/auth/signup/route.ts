@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     return Response.json(
       {
         err: {
-          email: "Email already exists",
+          msg: "Email already exists",
         },
       },
      { status: 400 },

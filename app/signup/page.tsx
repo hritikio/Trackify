@@ -31,12 +31,15 @@ const Signup = () => {
     })
 
     const data=await res.json();
+    console.log("signup data is ");
+    console.log(data);
+    console.log("res is ", res);
 
     if(res.ok){
       alert("Signup successful!");
       redirect("/");
     }else{
-      alert(data.error || "Signup Failed")
+      alert(data.err?.msg || "Signup Failed")
       setloading(false);
     }
   };
