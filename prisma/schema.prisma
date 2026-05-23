@@ -18,8 +18,10 @@ datasource db {
 model Transaction{
   id    String @id @default(uuid())
   amount Int
-  type String
-  category String
+  type String //income or expense
+  category String  
+  title String
+  date DateTime
   description  String? @default("")
   createdAt DateTime @default(now())
   userid String 

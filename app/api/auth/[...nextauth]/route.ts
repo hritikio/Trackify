@@ -61,6 +61,7 @@ export const authoptions: NextAuthOptions = {
         session.user.id = token.id;
         session.user.email = token.email;
         session.user.name = token.name;
+      
         // delete session.user.image;
       }
       return session;
@@ -68,7 +69,7 @@ export const authoptions: NextAuthOptions = {
   },
 
   pages: {
-    signIn: "/login", // redirect to your login page
+    signIn: "/login ", // redirect to your login page
   },
 };
 

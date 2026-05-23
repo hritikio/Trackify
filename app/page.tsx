@@ -1,14 +1,17 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { Transaction } from "./generated/prisma/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { PieChart, Pie, Cell } from "recharts";
+import { Button } from "@/Components";
 
 export default function Home() {
   const router = useRouter();
+
   const { data: session, status } = useSession();
+  console.log("usesession is ", session);
   const [transactions, setTransactions] = useState([]);
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("expense");
@@ -305,8 +308,10 @@ export default function Home() {
                 Delete{" "}
               </button>
             </div>
+            
           );
         })}
+        <Button  onClick={()=>signOut()}>logout</Button>
       </div>
 
       <div className="ml-[400px]">

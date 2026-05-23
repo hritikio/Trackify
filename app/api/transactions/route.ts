@@ -5,12 +5,17 @@ import { authoptions } from "@/app/api/auth/[...nextauth]/route";
 
 const getUserId = async () => {
   const session = await getServerSession(authoptions);
-  console.log(session);
-  if(session){
-    //@ts-ignore
-    return session.user?.id ?? null;
+  const email = session?.user?.email;
+  if (!email) {
+    return null;
   }
-  return null;
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true },
+  });
+
+  return user?.id ?? null;
 };
 
 //fetch all transactions from the database and return them as a json response
@@ -34,26 +39,44 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const userId = await getUserId();
+  try {
+    const userId = await getUserId();
+    console.log("user id is ", userId);
 
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const body = await req.json();
+
+    if (!body.title || !body.amount || !body.type || !body.category) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
+    }
+
+    console.log("body is " + body);
+
+    const transaction = await prisma.transaction.create({
+      data: {
+        amount: Number(body.amount),
+        type: body.type,
+        category: body.category,
+        description: body.description || null,
+        userid: userId,
+        title: body.title,
+        date: new Date(body.date),
+      },
+    });
+
+    return NextResponse.json({ transaction });
+  } catch (error) {
+    console.error("Error creating transaction:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
-
-  const body = await req.json();
-  console.log(body);
-
-  const transaction = await prisma.transaction.create({
-    data: {
-      amount: body.amount,
-      type: body.type,
-      category: body.category,
-      description: body.description || null,
-      userid: userId,
-    },
-  });
-
-  return NextResponse.json({ transaction });
 }
 
 export async function DELETE(req: Request) {

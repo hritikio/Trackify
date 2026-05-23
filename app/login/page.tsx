@@ -32,6 +32,7 @@ export default function Login() {
     <div className="bg-white min-h-screen text-black flex justify-center items-center">
       <div className="flex">
         {/* LEFT SIDE */}
+        
         <div
           className="h-[600px] w-[480px] bg-white shadow-lg rounded-l-3xl"
         >
@@ -71,6 +72,7 @@ export default function Login() {
             height={100}
             className="translate-y-[32px]"
           />
+        
 
           <div className="text-white mt-[216px] flex flex-col items-center">
             <p className="font-bold text-4xl">Hello, Friend!</p>
@@ -84,6 +86,8 @@ export default function Login() {
             <br />
             {password}
           </div> */}
+
+          
          
         </div>
       </div>

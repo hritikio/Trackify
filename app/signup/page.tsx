@@ -47,6 +47,7 @@ const Signup = () => {
   return (
     <div className="bg-white min-h-screen text-black border justify-center items-center flex  ">
       <div className="flex ">
+        
         <div className="bg-gradient-to-b from-[#4DD0B1] to-[#185A4D] h-[600px] w-[320px] rounded-l-3xl flex flex-col items-center">
           <Image
             src="/Logo2.svg"
@@ -107,6 +108,7 @@ const Signup = () => {
               <p className="text-red-500">Passwords do not match</p>
             )}
           </div>
+          
         </div>
       </div>
     </div>
