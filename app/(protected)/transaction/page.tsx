@@ -29,7 +29,7 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="bg-gray-100 w-full  h-[calc(100vh-56px)] text-black">
+    <div className="bg-gray-100 w-full min-h-[calc(100vh-56px)] text-black">
       <div className="flex justify-between  mx-40 mt-10 ">
         <h2 className="text-3xl">Transaction</h2>
         <TransactionHeader />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TypeBadge from "@/Components/IncomeBadge";
 import ActionButtons from "@/Components/ActionButton";
 import CategoryFilter from "@/Components/CategoryFilter";
@@ -16,6 +16,8 @@ export default function TransactionManage({ transactions }: Props) {
   const [monthFilter, setMonthFilter] = useState("This Month");
   const [typeFilter, setTypeFilter] = useState("All Types");
   const [sortFilter, setSortFilter] = useState("Newest First");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   const filteredTransactions = useMemo(() => {
     const now = new Date();
@@ -62,9 +64,52 @@ export default function TransactionManage({ transactions }: Props) {
     return sorted;
   }, [categoryFilter, monthFilter, sortFilter, transactions, typeFilter]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [categoryFilter, monthFilter, sortFilter, typeFilter]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredTransactions.length / pageSize),
+  );
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const pagedTransactions = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredTransactions.slice(startIndex, startIndex + pageSize);
+  }, [currentPage, filteredTransactions]);
+
+  const pageItems = useMemo(() => {
+    const items: Array<number | string> = [];
+
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i += 1) items.push(i);
+      return items;
+    }
+
+    items.push(1);
+
+    if (currentPage > 3) items.push("...");
+
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    for (let i = start; i <= end; i += 1) items.push(i);
+
+    if (currentPage < totalPages - 2) items.push("...");
+
+    items.push(totalPages);
+    return items;
+  }, [currentPage, totalPages]);
+
   return (
     <div className="w-[1200px] mx-auto">
-      <div className="mb-4 flex flex-wrap items-center gap-4">
+      <div className="mb-4 flex flex-wrap items-center gap-20">
         <MonthFilter value={monthFilter} onChange={setMonthFilter} />
         <CategoryFilter value={categoryFilter} onChange={setCategoryFilter} />
         <TypeFilter value={typeFilter} onChange={setTypeFilter} />
@@ -84,7 +129,7 @@ export default function TransactionManage({ transactions }: Props) {
         </thead>
 
         <tbody>
-          {filteredTransactions.map((transaction) => (
+          {pagedTransactions.map((transaction) => (
             <tr key={transaction.id} className="border-t">
               <td className="px-6 py-4">
                 {new Date(transaction.date).toLocaleDateString()}
@@ -107,6 +152,56 @@ export default function TransactionManage({ transactions }: Props) {
           ))}
         </tbody>
       </table>
+
+      <div className="mt-6 flex items-center justify-center gap-3">
+        <button
+          type="button"
+          onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+          className="rounded-md border border-dashed border-blue-400 px-4 py-2 text-sm text-gray-700"
+          disabled={currentPage === 1}
+        >
+          Prev
+        </button>
+
+        {pageItems.map((item, index) => {
+          if (item === "...") {
+            return (
+              <span key={`dots-${index}`} className="px-2 text-gray-500">
+                ...
+              </span>
+            );
+          }
+
+          const pageNumber = item as number;
+          const isActive = pageNumber === currentPage;
+
+          return (
+            <button
+              key={pageNumber}
+              type="button"
+              onClick={() => setCurrentPage(pageNumber)}
+              className={`rounded-md border border-dashed border-blue-400 px-4 py-2 text-sm ${
+                isActive
+                  ? "bg-teal-500 text-white"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              {pageNumber}
+            </button>
+          );
+        })}
+
+        <button
+          type="button"
+          onClick={() =>
+            setCurrentPage((page) => Math.min(totalPages, page + 1))
+          }
+          className="rounded-md border border-dashed border-blue-400 px-4 py-2 text-sm text-gray-700"
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }
