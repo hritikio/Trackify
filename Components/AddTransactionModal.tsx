@@ -71,7 +71,7 @@ export default function AddTransactionModal({
         setSuccessToast(false);
         onClose(); //means setopen(false)
         router.refresh();
-      }, 1500);
+      }, 3000);
     } catch (error) {
       console.error(error);
     }

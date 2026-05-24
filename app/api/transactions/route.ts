@@ -121,10 +121,12 @@ export async function PUT(req: Request) {
       userid: userId,
     },
     data: {
-      amount: body.amount,
+      amount: Number(body.amount),
       type: body.type,
       category: body.category,
-      description: body.description,
+      description: body.description || null,
+      title: body.title,
+      date: new Date(body.date),
     },
   });
 
