@@ -17,7 +17,7 @@ export default function TransactionManage({ transactions }: Props) {
   const [typeFilter, setTypeFilter] = useState("All Types");
   const [sortFilter, setSortFilter] = useState("Newest First");
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5;
+  const pageSize = 7;
 
   const filteredTransactions = useMemo(() => {
     const now = new Date();
@@ -157,7 +157,7 @@ export default function TransactionManage({ transactions }: Props) {
         <button
           type="button"
           onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-          className="rounded-md border border-dashed border-blue-400 px-4 py-2 text-sm text-gray-700"
+          className="rounded-md border border-dashed border-blue-400 px-4 py-2 text-sm text-gray-700 cursor-pointer"
           disabled={currentPage === 1}
         >
           Prev
@@ -166,7 +166,7 @@ export default function TransactionManage({ transactions }: Props) {
         {pageItems.map((item, index) => {
           if (item === "...") {
             return (
-              <span key={`dots-${index}`} className="px-2 text-gray-500">
+              <span key={`dots-${index}`} className="px-2 text-gray-500 ">
                 ...
               </span>
             );
@@ -180,7 +180,7 @@ export default function TransactionManage({ transactions }: Props) {
               key={pageNumber}
               type="button"
               onClick={() => setCurrentPage(pageNumber)}
-              className={`rounded-md border border-dashed border-blue-400 px-4 py-2 text-sm ${
+              className={`rounded-md border border-dashed border-blue-400 px-4 py-2 text-sm cursor-pointer ${
                 isActive
                   ? "bg-teal-500 text-white"
                   : "text-gray-700 hover:bg-gray-50"
@@ -196,7 +196,7 @@ export default function TransactionManage({ transactions }: Props) {
           onClick={() =>
             setCurrentPage((page) => Math.min(totalPages, page + 1))
           }
-          className="rounded-md border border-dashed border-blue-400 px-4 py-2 text-sm text-gray-700"
+          className="rounded-md border border-dashed border-blue-400 px-4 py-2 text-sm text-gray-700 cursor-pointer"
           disabled={currentPage === totalPages}
         >
           Next

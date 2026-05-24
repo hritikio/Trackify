@@ -6,6 +6,7 @@ type ConfirmDeleteModalProps = {
   message?: string;
   onCancel: () => void;
   onConfirm: () => void;
+  isLoading?: boolean;
 };
 
 export default function ConfirmDeleteModal({
@@ -14,6 +15,7 @@ export default function ConfirmDeleteModal({
   message = "Are you sure you want to delete this transaction? This action cannot be undone.",
   onCancel,
   onConfirm,
+  isLoading = false,
 }: ConfirmDeleteModalProps) {
   if (!isOpen) return null;
 
@@ -29,16 +31,18 @@ export default function ConfirmDeleteModal({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg border border-gray-200 px-6 py-2 text-gray-700 hover:bg-gray-50"
+            className="rounded-lg border border-gray-200 px-6 py-2 text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="rounded-lg bg-red-500 px-6 py-2 text-white hover:bg-red-600"
+            className="rounded-lg bg-red-500 px-6 py-2 text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={isLoading}
           >
-            Delete
+            {isLoading ? "Deleting..." : "Delete"}
           </button>
         </div>
       </div>

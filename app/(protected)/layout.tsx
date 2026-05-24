@@ -22,6 +22,16 @@ export default function DashboardLayout({
       </nav>
 
       {children}
+      <footer className="bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] text-gray-500 h-[64px] flex justify-between px-44 items-center"> 
+        <div>© 2025 FinTrack. All rights reserved.</div>
+        {/* <div className="ml-auto">Made with ❤️ by FinTrack Team</div> */}
+        <div className="flex gap-8">
+          <p>Privacy Policy</p>
+          <p>Terms of Use</p>
+          <p>Contact</p>
+        </div>
+
+      </footer>
     </>
   );
 }

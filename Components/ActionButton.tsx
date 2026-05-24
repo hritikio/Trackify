@@ -37,7 +37,12 @@ export default function ActionButton({ transaction }: ActionButtonProps) {
   );
   const [deleteSuccessToast, setDeleteSuccessToast] = useState(false);
   const [deleteErrorToast, setDeleteErrorToast] = useState(false);
+  const [deleteErrorMessage, setDeleteErrorMessage] = useState(
+    "Failed to delete transaction.",
+  );
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     setTitle(transaction.title ?? "");
@@ -49,36 +54,57 @@ export default function ActionButton({ transaction }: ActionButtonProps) {
   }, [transaction]);
 
   const handleDelete = async () => {
-    const response = await fetch("/api/transactions", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: transaction.id }),
-    });
+    if (isDeleting) return;
+    setIsDeleting(true);
 
-    if (!response.ok) {
-      console.error("Failed to delete transaction");
+    try {
+      const response = await fetch("/api/transactions", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: transaction.id }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to delete transaction");
+        setDeleteErrorMessage(
+          response.status === 404
+            ? "Transaction already deleted."
+            : "Failed to delete transaction.",
+        );
+        setDeleteErrorToast(true);
+
+        setTimeout(() => {
+          setDeleteErrorToast(false);
+        }, 3000);
+        return;
+      }
+
+      setDeleteSuccessToast(true);
+      setIsDeleteOpen(false);
+      router.refresh();
+
+      setTimeout(() => {
+        setDeleteSuccessToast(false);
+      }, 1500);
+    } catch (error) {
+      console.error(error);
+      setDeleteErrorMessage("Failed to delete transaction.");
       setDeleteErrorToast(true);
 
       setTimeout(() => {
         setDeleteErrorToast(false);
       }, 3000);
-      return;
+    } finally {
+      setIsDeleting(false);
     }
-
-    setDeleteSuccessToast(true);
-    setIsDeleteOpen(false);
-    router.refresh();
-
-    setTimeout(() => {
-      setDeleteSuccessToast(false);
-    }, 1500);
   };
 
   const handleEdit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Edit transaction with id:", transaction);
+    if (isEditing) return;
+    setIsEditing(true);
 
     const originalDate = new Date(transaction.date).toISOString().split("T")[0];
     const noChanges =
@@ -96,43 +122,56 @@ export default function ActionButton({ transaction }: ActionButtonProps) {
       setTimeout(() => {
         setErrorToast(false);
       }, 3000);
+      setIsEditing(false);
       return;
     }
 
-    const response = await fetch("/api/transactions", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: transaction.id,
-        title,
-        description,
-        category,
-        type,
-        amount: Number(amount),
-        date,
-      }),
-    });
+    try {
+      const response = await fetch("/api/transactions", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: transaction.id,
+          title,
+          description,
+          category,
+          type,
+          amount: Number(amount),
+          date,
+        }),
+      });
 
-    if (!response.ok) {
-      console.error("Failed to update transaction");
+      if (!response.ok) {
+        console.error("Failed to update transaction");
+        setEditErrorMessage("Failed to update transaction.");
+        setErrorToast(true);
+
+        setTimeout(() => {
+          setErrorToast(false);
+        }, 3000);
+        return;
+      }
+
+      setSuccessToast(true);
+      setIsOpen(false);
+      router.refresh();
+
+      setTimeout(() => {
+        setSuccessToast(false);
+      }, 1500);
+    } catch (error) {
+      console.error(error);
       setEditErrorMessage("Failed to update transaction.");
       setErrorToast(true);
 
       setTimeout(() => {
         setErrorToast(false);
       }, 3000);
-      return;
+    } finally {
+      setIsEditing(false);
     }
-
-    setSuccessToast(true);
-    setIsOpen(false);
-    router.refresh();
-
-    setTimeout(() => {
-      setSuccessToast(false);
-    }, 1500);
   };
 
   return (
@@ -141,7 +180,7 @@ export default function ActionButton({ transaction }: ActionButtonProps) {
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="rounded-full bg-yellow-400 p-2"
+          className="rounded-full bg-yellow-400 p-2 cursor-pointer"
           aria-label="Edit transaction"
         >
           <Pencil size={14} />
@@ -150,8 +189,9 @@ export default function ActionButton({ transaction }: ActionButtonProps) {
         <button
           type="button"
           onClick={() => setIsDeleteOpen(true)}
-          className="rounded-full bg-red-500 p-2 text-white"
+          className="rounded-full bg-red-500 p-2 text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
           aria-label="Delete transaction"
+          disabled={isDeleting}
         >
           <Trash2 size={14} />
         </button>
@@ -248,9 +288,10 @@ export default function ActionButton({ transaction }: ActionButtonProps) {
 
                 <button
                   type="submit"
-                  className="rounded-lg bg-teal-500 px-8 py-2 text-white transition hover:bg-teal-600"
+                  className="rounded-lg bg-teal-500 px-8 py-2 text-white transition hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={isEditing}
                 >
-                  Save
+                  {isEditing ? "Saving..." : "Save"}
                 </button>
               </div>
             </form>
@@ -262,6 +303,7 @@ export default function ActionButton({ transaction }: ActionButtonProps) {
         isOpen={isDeleteOpen}
         onCancel={() => setIsDeleteOpen(false)}
         onConfirm={handleDelete}
+        isLoading={isDeleting}
       />
 
       {successToast && (
@@ -271,15 +313,10 @@ export default function ActionButton({ transaction }: ActionButtonProps) {
       {errorToast && <Toast type="error" message={editErrorMessage} />}
 
       {deleteSuccessToast && (
-        <Toast
-          type="success"
-          message="Deleted transaction successfully!"
-        />
+        <Toast type="success" message="Deleted transaction successfully!" />
       )}
 
-      {deleteErrorToast && (
-        <Toast type="error" message="Failed to delete transaction." />
-      )}
+      {deleteErrorToast && <Toast type="error" message={deleteErrorMessage} />}
     </>
   );
 }

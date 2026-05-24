@@ -53,7 +53,7 @@ const buildTransaction = (userId) => {
 
 const main = async () => {
   const count = Number(process.env.SEED_COUNT || 50);
-  const email = "123@gmail.com";
+  const email = process.env.SEED_EMAIL || "123@gmail.com";
 
   const client = new Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
