@@ -12,7 +12,7 @@ export default function Home() {
 
   const { data: session, status } = useSession();
   console.log("usesession is ", session);
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("expense");
   const [category, setCategory] = useState("");
@@ -21,10 +21,21 @@ export default function Home() {
   const [editData, setEditData] = useState<Transaction | null>(null);
 
   const fetchdata = async () => {
-    const res = await fetch("/api/transactions");
-    const data = await res.json();
-    console.log("fetchdata is ", data);
-    setTransactions(data);
+    try {
+      const res = await fetch("/api/transactions");
+      const data = await res.json();
+      console.log("fetchdata is ", data);
+
+      if (!res.ok || !Array.isArray(data)) {
+        setTransactions([]);
+        return;
+      }
+
+      setTransactions(data);
+    } catch (error) {
+      console.error("Failed to fetch transactions:", error);
+      setTransactions([]);
+    }
   };
 
   const handlesubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -308,10 +319,9 @@ export default function Home() {
                 Delete{" "}
               </button>
             </div>
-            
           );
         })}
-        <Button  onClick={()=>signOut()}>logout</Button>
+        <Button onClick={() => signOut()}>logout</Button>
       </div>
 
       <div className="ml-[400px]">

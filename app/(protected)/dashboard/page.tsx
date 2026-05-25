@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import StatCardProps from "@/Components/statCardProps"
 import { authoptions } from "@/app/api/auth/[...nextauth]/route";
+import StatCard from '@/Components/StatCardInfo'
 
 export default async function DashboardPage() {
 	const session = await getServerSession(authoptions);
@@ -16,9 +16,10 @@ export default async function DashboardPage() {
 	return (
     <div className="bg-gray-100 w-full  h-[calc(100vh-56px)] text-black">
 		<div>
-			<StatCardProps title="total balance " amount={45320} change={2150} changeType="amount"/>
-			<StatCardProps title="total balance " amount={45320}/>
+			<StatCard />
+			
 		</div>
 	</div>
   );
 }
+

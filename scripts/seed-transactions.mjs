@@ -5,7 +5,7 @@ import pg from "pg";
 const { Client } = pg;
 
 const categories = ["Food", "Travel", "Shopping", "Entertainment"];
-const types = ["Income", "Expense"];
+const types = ["income", "expense"];
 const titles = [
   "Groceries",
   "Taxi",
@@ -34,8 +34,7 @@ const randomDateWithinDays = (days) => {
 const buildTransaction = (userId) => {
   const type = getRandomItem(types);
   const category = getRandomItem(categories);
-  const amount =
-    type === "Income" ? getRandomInt(5000, 50000) : getRandomInt(50, 5000);
+  const amount = getRandomInt(50, 5000);
   const title = getRandomItem(titles);
 
   return {
@@ -114,3 +113,5 @@ main()
   .finally(async () => {
     // No-op: client is closed in main.
   });
+
+// To run this script, use: `node scripts/seed-transactions.mjs`

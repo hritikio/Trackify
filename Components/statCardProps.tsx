@@ -6,16 +6,23 @@ type StatCardProps = {
   amount: number;
   change?: number;
   changeType?: "percentage" | "amount";
+  amountInPercent?: boolean;
 };
 
-const StatCard = ({ title, amount, change, changeType }: StatCardProps) => {
+const StatCard = ({
+  title,
+  amount,
+  change,
+  changeType,
+  amountInPercent = false,
+}: StatCardProps) => {
   const hasChange = typeof change === "number";
   const isPositive = (change ?? 0) >= 0;
 
   const changeText = hasChange
     ? changeType === "percentage"
-      ? `${change > 0 ? "+" : ""}${change}% from last month`
-      : `${change > 0 ? "+" : ""}₹${Math.abs(change).toLocaleString(
+      ? `${change > 0 ? "+" : " "}${change}% from last month`
+      : `${change > 0 ? "+" : "-"}₹${Math.abs(change).toLocaleString(
           "en-IN",
         )} this month`
     : "";
@@ -26,7 +33,9 @@ const StatCard = ({ title, amount, change, changeType }: StatCardProps) => {
         <p className="text-sm text-gray-500">{title}</p>
 
         <h2 className="text-4xl font-bold text-gray-800">
-          ₹{amount.toLocaleString("en-IN")}
+          {!amountInPercent
+            ? `₹${amount.toLocaleString("en-IN")}`
+            : `${amount}%`}
         </h2>
 
         {hasChange ? (
