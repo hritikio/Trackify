@@ -44,6 +44,7 @@ const RANGE_OPTIONS: RangeOption[] = [
 ];
 
 const PIE_COLORS = ["#f59e0b", "#3b82f6", "#22c55e", "#ef4444", "#8b5cf6"];
+const BAR_COLORS = ["#f59e0b", "#3b82f6", "#22c55e", "#ef4444", "#8b5cf6"];
 
 const toDate = (value?: string | Date | null) => {
   if (!value) return null;
@@ -330,12 +331,14 @@ export default function ReportsAnalytics({ transactions }: Props) {
                 <YAxis />
                 <Tooltip formatter={(value) => formatCurrencyValue(value)} />
                 <Legend />
-                <Bar
-                  dataKey="value"
-                  fill="#f59e0b"
-                  name="Amount"
-                  radius={[6, 6, 0, 0]}
-                />
+                <Bar dataKey="value" name="Amount" radius={[6, 6, 0, 0]}>
+                  {barData.map((entry, index) => (
+                    <Cell
+                      key={entry.name}
+                      fill={BAR_COLORS[index % BAR_COLORS.length]}
+                    />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
