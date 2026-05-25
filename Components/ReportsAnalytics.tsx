@@ -52,7 +52,6 @@ const RANGE_OPTIONS: RangeOption[] = [
 const PIE_COLORS = ["#f59e0b", "#3b82f6", "#22c55e", "#ef4444", "#8b5cf6"];
 const BAR_COLORS = ["#f59e0b", "#3b82f6", "#22c55e", "#ef4444", "#8b5cf6"];
 
-
 const toDate = (value?: string | Date | null) => {
   if (!value) return null;
   return value instanceof Date ? value : new Date(value);
@@ -359,8 +358,8 @@ export default function ReportsAnalytics({ transactions }: Props) {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-2xl bg-white p-6 shadow-sm">
+      <div className="mt-6 flex flex-row gap-6 mb-10">
+        <div className="rounded-2xl bg-white p-6 shadow-sm flex-1">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold text-gray-800">
               Top 5 Expenses
@@ -380,9 +379,34 @@ export default function ReportsAnalytics({ transactions }: Props) {
                     outerRadius={90}
                     paddingAngle={0}
                     labelLine={false}
-                    label={({ percent }) =>
-                      `${(percent * 100).toFixed(1)}%`
-                    }
+                    label={({
+                      cx,
+                      cy,
+                      midAngle,
+                      innerRadius,
+                      outerRadius,
+                      percent,
+                      index,
+                    }) => {
+                      const radius =
+                        innerRadius + (outerRadius - innerRadius) * 0.6;
+                      const angle = (-midAngle * Math.PI) / 180;
+                      const x = cx + radius * Math.cos(angle);
+                      const y = cy + radius * Math.sin(angle);
+
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          fill="#ffffff"
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          style={{ fontSize: "12px" }}
+                        >
+                          {(percent * 100).toFixed(1)}%
+                        </text>
+                      );
+                    }}
                   >
                     {pieData.map((entry, index) => (
                       <Cell
@@ -427,7 +451,7 @@ export default function ReportsAnalytics({ transactions }: Props) {
           </div>
         </div>
 
-        <div className="rounded-2xl bg-white p-6 shadow-sm">
+        <div className="rounded-2xl bg-white p-6 shadow-sm flex-1">
           <h3 className="text-base font-semibold text-gray-800">Summary</h3>
           <p className="text-xs text-gray-400">
             Totals for the selected period
