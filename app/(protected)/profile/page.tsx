@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Button from "@/Components/Button";
 import Toast from "@/Components/Toast";
@@ -100,6 +100,7 @@ export default function Profile() {
 
     setPassword("");
     setConfirmPassword("");
+    setShowPasswordForm(false);
     setToast({ message: "Password updated successfully.", type: "success" });
   };
 
@@ -146,12 +147,16 @@ export default function Profile() {
     setToast({ message: "All transactions deleted.", type: "success" });
   };
 
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/login" });
+  };
+
   if (status === "loading") {
     return <div className="px-16 py-10 text-gray-500">Loading...</div>;
   }
 
   return (
-    <div className="px-16 py-10 text-black">
+    <div className="px-16 py-10 text-black mt-10">
       <div className="flex items-center justify-center">
         <h1 className="text-2xl font-semibold text-gray-800">My Profile</h1>
       </div>
@@ -235,6 +240,15 @@ export default function Profile() {
               </Button>
             </div>
           ) : null}
+
+          <div className="mt-6 flex justify-center">
+            <Button
+              onClick={handleLogout}
+              Classname="text-sm font-medium bg-rose-500"
+            >
+              Logout
+            </Button>
+          </div>
         </section>
       </div>
 
