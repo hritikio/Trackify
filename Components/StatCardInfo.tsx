@@ -1,10 +1,30 @@
 import StatCard from "@/Components/statCardProps";
 import prisma from "@/app/lib/prisma";
 import { TrendingUp, TrendingDown } from "lucide-react";
-
+import { authoptions } from "@/app/api/auth/[...nextauth]/route";
+import { getServerSession } from "next-auth";
 
 const StatCardInfo = async () => {
-  const transaction = await prisma.transaction.findMany({});
+  const session = await getServerSession(authoptions);
+  const email = session?.user?.email;
+
+  if (!email) {
+    return null;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true },
+  });
+
+  if (!user?.id) {
+    return null;
+  }
+
+  const transaction = await prisma.transaction.findMany({
+    where: { userid: user.id },
+    orderBy: { createdAt: "desc" },
+  });
 
   const now = new Date();
   const currentMonthTransaction = transaction.filter((t) => {
@@ -48,19 +68,23 @@ const StatCardInfo = async () => {
 
   const balanceChange = currentMonthBalance - previousMonthBalance;
 
-  const CurrentMonthIncome= currentMonthTransaction.reduce((totalIncome,transaction)=>{
-    return transaction.type.toLowerCase() === "income"
-      ? totalIncome + transaction.amount
-      : totalIncome;
+  const CurrentMonthIncome = currentMonthTransaction.reduce(
+    (totalIncome, transaction) => {
+      return transaction.type.toLowerCase() === "income"
+        ? totalIncome + transaction.amount
+        : totalIncome;
+    },
+    0,
+  );
 
-  },0)
-
-
-  const previousMonthIncome=previousMonthTransaction.reduce((totalIncome,transaction)=>{
-    return transaction.type.toLowerCase() === "income"
-      ? totalIncome + transaction.amount
-      : totalIncome;
-  },0)
+  const previousMonthIncome = previousMonthTransaction.reduce(
+    (totalIncome, transaction) => {
+      return transaction.type.toLowerCase() === "income"
+        ? totalIncome + transaction.amount
+        : totalIncome;
+    },
+    0,
+  );
 
   function getPercentageChange(current: number, previous: number) {
     if (previous === 0) return 0;
@@ -70,49 +94,64 @@ const StatCardInfo = async () => {
 
   const incomeChangePercent = getPercentageChange(
     CurrentMonthIncome,
-    previousMonthIncome
+    previousMonthIncome,
   );
   console.log(`
     current month income is ${CurrentMonthIncome}
     previous month income is ${previousMonthIncome}
-    `)
-
-  
-  console.log(`The income change percent from last month is ${incomeChangePercent}`)
-
-  const currentMonthExpense = currentMonthTransaction.reduce((totalExpense, transaction)=>{
-    return transaction.type.toLowerCase()==="expense" ? totalExpense+transaction.amount : totalExpense
-  },0)
-
-  const previousMonthExpense = previousMonthTransaction.reduce((totalExpense, transaction)=>{
-    return transaction.type.toLowerCase()==="expense" ? totalExpense+transaction.amount : totalExpense
-  },0)
-
-  const expenseChangePercent=getPercentageChange(currentMonthExpense,previousMonthExpense);
-  
-    console.log(`
-    current month expense is ${currentMonthExpense}
-    previous month expense is ${previousMonthExpense}
-    expense change percent is ${(expenseChangePercent)} 
     `);
 
+  console.log(
+    `The income change percent from last month is ${incomeChangePercent}`,
+  );
 
-    const currentSavingsRate =
-      ((CurrentMonthIncome - currentMonthExpense) / CurrentMonthIncome) * 100;
+  const currentMonthExpense = currentMonthTransaction.reduce(
+    (totalExpense, transaction) => {
+      return transaction.type.toLowerCase() === "expense"
+        ? totalExpense + transaction.amount
+        : totalExpense;
+    },
+    0,
+  );
 
-    const previousSavingsRate =
-      ((previousMonthIncome - previousMonthExpense) / previousMonthIncome) *
-      100;
+  const previousMonthExpense = previousMonthTransaction.reduce(
+    (totalExpense, transaction) => {
+      return transaction.type.toLowerCase() === "expense"
+        ? totalExpense + transaction.amount
+        : totalExpense;
+    },
+    0,
+  );
 
-    const savingsRateChange = currentSavingsRate - previousSavingsRate;
+  const expenseChangePercent = getPercentageChange(
+    currentMonthExpense,
+    previousMonthExpense,
+  );
 
-    console.log(`
+  console.log(`
+    current month expense is ${currentMonthExpense}
+    previous month expense is ${previousMonthExpense}
+    expense change percent is ${expenseChangePercent} 
+    `);
+
+  const currentSavingsRate =
+    CurrentMonthIncome === 0
+      ? 0
+      : ((CurrentMonthIncome - currentMonthExpense) / CurrentMonthIncome) * 100;
+
+  const previousSavingsRate =
+    previousMonthIncome === 0
+      ? 0
+      : ((previousMonthIncome - previousMonthExpense) / previousMonthIncome) *
+        100;
+
+  const savingsRateChange = currentSavingsRate - previousSavingsRate;
+
+  console.log(`
     current saving rate is ${currentSavingsRate}
     previous saving rate is ${previousSavingsRate}
     saving rate change percent is ${savingsRateChange} 
     `);
-
-
 
   return (
     <div className="flex gap-4 justify-between mx-36   mt-10">
@@ -150,21 +189,22 @@ const StatCardInfo = async () => {
             {currentSavingsRate.toFixed(0)}%
           </h2>
 
-        
-            <div
-              className={`flex items-center gap-2 text-sm ${
-                savingsRateChange>0 ? "text-green-500" : "text-red-500"
-              }`}
-            >
-              <span>{savingsRateChange.toFixed(2)} {savingsRateChange>0 ? `improvemnt `: "from last month " } </span>
+          <div
+            className={`flex items-center gap-2 text-sm ${
+              savingsRateChange > 0 ? "text-green-500" : "text-red-500"
+            }`}
+          >
+            <span>
+              {savingsRateChange.toFixed(2)}{" "}
+              {savingsRateChange > 0 ? `improvemnt ` : "from last month "}{" "}
+            </span>
 
-              {currentSavingsRate> 0  ?
-                <TrendingUp size={16} />
-               : 
-                <TrendingDown size={16} />
-              }
-            </div>
-          
+            {currentSavingsRate > 0 ? (
+              <TrendingUp size={16} />
+            ) : (
+              <TrendingDown size={16} />
+            )}
+          </div>
         </div>
       </div>
     </div>
