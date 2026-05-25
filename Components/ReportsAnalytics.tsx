@@ -29,7 +29,12 @@ type Props = {
   transactions: TransactionInput[];
 };
 
-type RangeKey = "this_month" | "last_month" | "last_3_months" | "all_time";
+type RangeKey =
+  | "this_month"
+  | "last_month"
+  | "last_3_months"
+  | "this_year"
+  | "all_time";
 
 type RangeOption = {
   key: RangeKey;
@@ -40,11 +45,13 @@ const RANGE_OPTIONS: RangeOption[] = [
   { key: "this_month", label: "This Month" },
   { key: "last_month", label: "Last Month" },
   { key: "last_3_months", label: "Last 3 Months" },
+  { key: "this_year", label: "This Year" },
   { key: "all_time", label: "All Time" },
 ];
 
 const PIE_COLORS = ["#f59e0b", "#3b82f6", "#22c55e", "#ef4444", "#8b5cf6"];
 const BAR_COLORS = ["#f59e0b", "#3b82f6", "#22c55e", "#ef4444", "#8b5cf6"];
+
 
 const toDate = (value?: string | Date | null) => {
   if (!value) return null;
@@ -114,6 +121,13 @@ const getRangeBounds = (key: RangeKey) => {
     };
   }
 
+  if (key === "this_year") {
+    return {
+      start: new Date(Date.UTC(now.getUTCFullYear(), 0, 1)),
+      end: new Date(Date.UTC(now.getUTCFullYear() + 1, 0, 1)),
+    };
+  }
+
   return {
     start: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 2, 1)),
     end: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)),
@@ -121,7 +135,7 @@ const getRangeBounds = (key: RangeKey) => {
 };
 
 export default function ReportsAnalytics({ transactions }: Props) {
-  const [rangeKey, setRangeKey] = useState<RangeKey>("this_month");
+  const [rangeKey, setRangeKey] = useState<RangeKey>("this_year");
   const [categoryFilter, setCategoryFilter] = useState("all");
 
   const categories = useMemo(() => {
@@ -330,7 +344,7 @@ export default function ReportsAnalytics({ transactions }: Props) {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip formatter={(value) => formatCurrencyValue(value)} />
-                <Legend />
+                <Legend iconType="none" />
                 <Bar dataKey="value" name="Amount" radius={[6, 6, 0, 0]}>
                   {barData.map((entry, index) => (
                     <Cell
@@ -362,9 +376,13 @@ export default function ReportsAnalytics({ transactions }: Props) {
                     data={pieData}
                     dataKey="value"
                     nameKey="name"
-                    innerRadius={50}
+                    innerRadius={0}
                     outerRadius={90}
                     paddingAngle={0}
+                    labelLine={false}
+                    label={({ percent }) =>
+                      `${(percent * 100).toFixed(1)}%`
+                    }
                   >
                     {pieData.map((entry, index) => (
                       <Cell
