@@ -13,7 +13,7 @@ export default function ProtectedNav() {
   const pathname = usePathname();
 
   return (
-    <div className="flex text-[#64748B] gap-20">
+    <div className="flex text-[#64748B] gap-16">
       {navItems.map((item) => {
         const isActive = pathname === item.href;
 
