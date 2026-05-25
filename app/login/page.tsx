@@ -81,11 +81,7 @@ export default function Login() {
 
             <Button Classname="w-[160px] mt-3" onClick={()=>{router.push("/signup"); setloading(!loading)}}  >SIGN UP</Button>
           </div>
-          {/* <div>
-            {email}
-            <br />
-            {password}
-          </div> */}
+         
 
           
          

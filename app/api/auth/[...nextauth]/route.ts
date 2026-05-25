@@ -1,7 +1,6 @@
-//for Login go to api/auth/signin  
+//for Login go to api/auth/signin
 //123@gmail.com
 //1234
-
 
 import prisma from "@/app/lib/prisma";
 import bcrypt from "bcrypt";
@@ -17,9 +16,9 @@ export const authoptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-  email: { label: "Email", type: "text" },
-  password: { label: "Password", type: "password" },
-},
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
 
       async authorize(credentials: any) {
         const user = await prisma.user.findUnique({
@@ -47,12 +46,17 @@ export const authoptions: NextAuthOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, user }: any) {
+    async jwt({ token, user, trigger, session }: any) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
       }
+
+      if (trigger === "update" && session?.name) {
+        token.name = session.name;
+      }
+
       return token;
     },
 
@@ -61,7 +65,7 @@ export const authoptions: NextAuthOptions = {
         session.user.id = token.id;
         session.user.email = token.email;
         session.user.name = token.name;
-      
+
         // delete session.user.image;
       }
       return session;

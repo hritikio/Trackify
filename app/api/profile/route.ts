@@ -54,7 +54,7 @@ export async function PATCH(req: Request) {
     updates.name = body.name.trim();
   }
 
-  if (typeof body.password === "string" && body.password.length >= 6) {
+  if (typeof body.password === "string" && body.password.length >= 3) {
     updates.password = await bcrypt.hash(body.password, 10);
   }
 
@@ -65,12 +65,13 @@ export async function PATCH(req: Request) {
     );
   }
 
-  await prisma.user.update({
+  const updatedUser = await prisma.user.update({
     where: { id: user.id },
     data: updates,
+    select: { name: true },
   });
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, user: updatedUser });
 }
 
 export async function DELETE() {

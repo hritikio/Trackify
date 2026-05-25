@@ -4,7 +4,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Button from "@/Components/Button";
 import Toast from "@/Components/Toast";
-
+import { CircleUserRound } from "lucide-react";
 export default function Profile() {
   const { data: session, status, update } = useSession();
   const [name, setName] = useState("");
@@ -49,8 +49,8 @@ export default function Profile() {
     });
     setIsSaving(false);
 
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
       setToast({
         message: data.error ?? "Failed to update name.",
         type: "error",
@@ -59,8 +59,9 @@ export default function Profile() {
     }
 
     const trimmedName = name.trim();
-    setDisplayName(trimmedName);
-    await update?.({ name: trimmedName });
+    const nextName = data?.user?.name ?? trimmedName;
+    setDisplayName(nextName);
+    await update?.({ name: nextName });
     setShowNameForm(false);
     setToast({ message: "Name updated successfully.", type: "success" });
   };
@@ -68,9 +69,9 @@ export default function Profile() {
   const handlePasswordUpdate = async () => {
     setToast(null);
 
-    if (password.length < 6) {
+    if (password.length < 3) {
       setToast({
-        message: "Password must be at least 6 characters.",
+        message: "Password must be at least 3 characters.",
         type: "error",
       });
       return;
@@ -164,7 +165,9 @@ export default function Profile() {
       <div className="mt-8 mx-auto flex justify-center text-black">
         <section className="w-full max-w-md rounded-2xl bg-white p-6 shadow-sm">
           <div className="flex flex-col items-center text-center">
-            <div className="h-20 w-20 rounded-full bg-slate-200" />
+            <div className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-200 bg-slate-50">
+              <CircleUserRound className="text-slate-500" size={80 } />
+            </div>
             <p className="mt-4 text-sm text-gray-500">
               Name: {displayName || "Your name"}
             </p>
@@ -182,7 +185,7 @@ export default function Profile() {
             </Button>
             <Button
               onClick={() => setShowPasswordForm((prev) => !prev)}
-              Classname="text-sm font-medium bg-slate-100 text-gray-700"
+              Classname="text-sm font-medium  text-white"
             >
               Change Password
             </Button>
@@ -234,7 +237,7 @@ export default function Profile() {
               <Button
                 onClick={handlePasswordUpdate}
                 loading={isSaving}
-                Classname="text-sm font-medium bg-slate-900"
+                Classname="text-sm font-medium "
               >
                 Update Password
               </Button>

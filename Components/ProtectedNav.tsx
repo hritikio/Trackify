@@ -13,7 +13,7 @@ export default function ProtectedNav() {
   const pathname = usePathname();
 
   return (
-    <div className="flex text-[#64748B]">
+    <div className="flex text-[#64748B] gap-20">
       {navItems.map((item) => {
         const isActive = pathname === item.href;
 
@@ -22,7 +22,7 @@ export default function ProtectedNav() {
             key={item.href}
             href={item.href}
             className={
-              "ml-4 first:ml-0 inline-flex pb-1 border-b-2 transition-colors " +
+              "inline-flex pb-1 border-b-2 transition-colors " +
               (isActive
                 ? "border-[#00B894 ] text-[#00B894]"
                 : "border-transparent hover:text-black")
