@@ -11,9 +11,11 @@ export default function DashboardLayout({
     <div className="min-h-screen flex flex-col bg-gray-100">
       <nav className="w-full h-14 border p-4 bg-white px-16 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
         <div className="flex text-black justify-between ">
-          <div className="-translate-y-2">
-            <Image src="./Logo1.svg" alt="Logo" width={100} height={40} />
-          </div>
+          <Link href="/dashboard">
+            <div className="-translate-y-2">
+              <Image src="./Logo1.svg" alt="Logo" width={100} height={40} />
+            </div>
+          </Link>
           <ProtectedNav />
           <Link
             href="/profile"

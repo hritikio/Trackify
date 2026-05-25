@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Trackify
 
-## Getting Started
+Trackify is a personal finance tracker built with Next.js App Router, Prisma, and NextAuth. It supports email/password auth, a protected dashboard, reporting/analytics, and profile management.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Auth: credentials login with NextAuth (JWT sessions).
+- Dashboard: stat cards, income/expense trends, category breakdown, recent transactions.
+- Transactions: CRUD via API routes.
+- Reports: analytics page with filters, charts, and summaries.
+- Profile: update name/password, export data, clear transactions, logout.
+
+## Tech Stack
+
+- Next.js (App Router)
+- Prisma + PostgreSQL
+- NextAuth (Credentials provider)
+- Recharts for charts
+- Tailwind CSS for UI
+
+## Project Structure
+
+- app/(protected)/...: authenticated pages (dashboard, reports, profile)
+- app/api/...: API routes (auth, transactions, profile)
+- Components/: reusable UI components
+- prisma/: Prisma schema and migrations
+- scripts/: utilities (seed script)
+
+## Environment Variables
+
+Create a .env file with:
+
+```
+DATABASE_URL=...
+NEXTAUTH_SECRET=...
+NEXTAUTH_URL=http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Optional (if adding Google login later):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Setup
 
-## Learn More
+Install dependencies:
 
-To learn more about Next.js, take a look at the following resources:
+```
+npm install
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Run the dev server:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+npm run dev
+```
 
-## Deploy on Vercel
+Open http://localhost:3000
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Database
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Prisma schema lives in prisma/schema.prisma.
+
+Seed transactions (requires a user in the database):
+
+```
+node scripts/seed-transactions.mjs
+```
+
+## Routes
+
+- /login, /signup: auth pages
+- /dashboard: main dashboard
+- /transaction: transaction management
+- /reports: analytics
+- /profile: profile settings
+
+
+## API Endpoints
+
+- /api/auth/[...nextauth]: NextAuth
+- /api/auth/signup: signup
+- /api/transactions: CRUD transactions
+- /api/profile: profile updates, export, clear data
+
+## Notes
+
+- Root route (/) redirects to /dashboard.
+- Profile updates write to Prisma and update the session so changes persist on refresh.
