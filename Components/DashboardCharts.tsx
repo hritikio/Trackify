@@ -215,7 +215,7 @@ export default function DashboardCharts({ transactions }: Props) {
                     nameKey="name"
                     innerRadius={50}
                     outerRadius={90}
-                    paddingAngle={4}
+                    paddingAngle={0}
                   >
                     {pieData.map((entry, index) => (
                       <Cell

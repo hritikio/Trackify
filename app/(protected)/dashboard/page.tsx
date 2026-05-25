@@ -44,7 +44,7 @@ export default async function DashboardPage() {
   const recentTransactions = transactions.slice(0, 5);
 
   return (
-    <div className="bg-gray-100 w-full h-[calc(100vh-56px)] text-black">
+    <div className="w-full text-black">
       <div>
         <StatCard />
         <DashboardCharts transactions={chartTransactions} />

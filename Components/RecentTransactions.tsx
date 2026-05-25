@@ -29,7 +29,7 @@ type Props = {
 
 export default function RecentTransactions({ transactions }: Props) {
   return (
-    <section className="mx-36 mt-8 rounded-2xl bg-white p-6 shadow-sm">
+    <section className="mx-36 mt-8 rounded-2xl bg-white p-6 shadow-sm mb-8">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-base font-semibold text-gray-800">
