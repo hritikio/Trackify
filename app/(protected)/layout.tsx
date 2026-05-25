@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { CircleUserRound } from "lucide-react";
 import ProtectedNav from "@/Components/ProtectedNav";
 export default function DashboardLayout({
@@ -14,10 +15,13 @@ export default function DashboardLayout({
             <Image src="./Logo1.svg" alt="Logo" width={100} height={40} />
           </div>
           <ProtectedNav />
-          <div className="flex text-[#64748B]">
+          <Link
+            href="/profile"
+            className="flex items-center text-[#64748B] hover:text-slate-600"
+          >
             Profile
             <CircleUserRound className="ml-2" color="#64748B" />
-          </div>
+          </Link>
         </div>
       </nav>
 
