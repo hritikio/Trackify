@@ -31,7 +31,7 @@ Trackify is a personal finance tracker built with Next.js App Router, Prisma, an
 Create a .env file with:
 
 ```
-DATABASE_URL=...
+DATABASE_URL=your_DB_string
 NEXTAUTH_SECRET=...
 NEXTAUTH_URL=http://localhost:3000
 ```
@@ -75,7 +75,7 @@ node scripts/seed-transactions.mjs
 - /dashboard: main dashboard
 - /transaction: transaction management
 - /reports: analytics
-- /profile: profile settings
+- /profile: profile settings 
 
 
 ## API Endpoints
