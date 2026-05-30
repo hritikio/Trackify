@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Trackify",
+  title: "FinTrack",
   description:
     "Trackify is a web application that allows users to track their habits and goals. It provides a simple and intuitive interface for users to log their daily activities and monitor their progress over time.",
   icons: {
