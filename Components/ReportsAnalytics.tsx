@@ -251,12 +251,12 @@ export default function ReportsAnalytics({ transactions }: Props) {
             Insights from your transactions
           </p>
         </div>
-        <button
+        {/* <button
           type="button"
           className="rounded-md bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm"
         >
           Export
-        </button>
+        </button> */}
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
