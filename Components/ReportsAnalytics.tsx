@@ -390,7 +390,8 @@ export default function ReportsAnalytics({ transactions }: Props) {
                     }) => {
                       const radius =
                         innerRadius + (outerRadius - innerRadius) * 0.6;
-                      const safeMidAngle = typeof midAngle === "number" ? midAngle : 0;
+                      const safeMidAngle =
+                        typeof midAngle === "number" ? midAngle : 0;
                       const angle = (-safeMidAngle * Math.PI) / 180;
                       const x = cx + radius * Math.cos(angle);
                       const y = cy + radius * Math.sin(angle);
@@ -404,7 +405,7 @@ export default function ReportsAnalytics({ transactions }: Props) {
                           dominantBaseline="central"
                           style={{ fontSize: "12px" }}
                         >
-                          {(percent?percent * 100:0).toFixed(1)}%
+                          {(percent ? percent * 100 : 0).toFixed(1)}%
                         </text>
                       );
                     }}

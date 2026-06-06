@@ -8,7 +8,6 @@ import { CircleUserRound } from "lucide-react";
 export default function Profile() {
   const { data: session, status, update } = useSession();
   const [name, setName] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [toast, setToast] = useState<{
@@ -16,16 +15,8 @@ export default function Profile() {
     type: "success" | "error";
   } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [isClearing, setIsClearing] = useState(false);
   const [showNameForm, setShowNameForm] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
-
-  useEffect(() => {
-    if (session?.user?.name) {
-      setName(session.user.name);
-      setDisplayName(session.user.name);
-    }
-  }, [session?.user?.name]);
 
   useEffect(() => {
     if (!toast) return;
@@ -60,7 +51,7 @@ export default function Profile() {
 
     const trimmedName = name.trim();
     const nextName = data?.user?.name ?? trimmedName;
-    setDisplayName(nextName);
+    setName(nextName);
     await update?.({ name: nextName });
     setShowNameForm(false);
     setToast({ message: "Name updated successfully.", type: "success" });
@@ -105,49 +96,6 @@ export default function Profile() {
     setToast({ message: "Password updated successfully.", type: "success" });
   };
 
-  const handleExport = async () => {
-    setToast(null);
-
-    const res = await fetch("/api/profile");
-    if (!res.ok) {
-      setToast({ message: "Failed to export data.", type: "error" });
-      return;
-    }
-
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "trackify-export.json";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleClearData = async () => {
-    setToast(null);
-
-    if (!confirm("This will delete all your transactions. Continue?")) {
-      return;
-    }
-
-    setIsClearing(true);
-    const res = await fetch("/api/profile", { method: "DELETE" });
-    setIsClearing(false);
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setToast({
-        message: data.error ?? "Failed to clear data.",
-        type: "error",
-      });
-      return;
-    }
-
-    setToast({ message: "All transactions deleted.", type: "success" });
-  };
-
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/login" });
   };
@@ -166,10 +114,10 @@ export default function Profile() {
         <section className="w-full max-w-md rounded-2xl bg-white p-6 shadow-sm">
           <div className="flex flex-col items-center text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-200 bg-slate-50">
-              <CircleUserRound className="text-slate-500" size={80 } />
+              <CircleUserRound className="text-slate-500" size={80} />
             </div>
             <p className="mt-4 text-sm text-gray-500">
-              Name: {displayName || "Your name"}
+              Name: {(session?.user?.name ?? name) || "Your name"}
             </p>
             <p className="mt-2 text-xs text-gray-400">
               Email: {session?.user?.email ?? "-"}
@@ -178,7 +126,10 @@ export default function Profile() {
 
           <div className="mt-6 flex justify-center gap-3">
             <Button
-              onClick={() => setShowNameForm((prev) => !prev)}
+              onClick={() => {
+                setName(session?.user?.name ?? "");
+                setShowNameForm((prev) => !prev);
+              }}
               Classname="text-sm font-medium"
             >
               Edit Profile
