@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   title: "FinTrack",
   description:
     "Trackify is a web application that allows users to track their habits and goals. It provides a simple and intuitive interface for users to log their daily activities and monitor their progress over time.",
-  icons: {
-    icon: "fintrack.png",
-  },
+  // icons: {
+  //   icon: "fintrack.png",
+  // },
 };
 
 export default function RootLayout({
