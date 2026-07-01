@@ -4,20 +4,56 @@ import pg from "pg";
 
 const { Client } = pg;
 
-const categories = ["Food", "Travel", "Shopping", "Entertainment"];
-const types = ["income", "expense"];
-const titles = [
-  "Groceries",
-  "Taxi",
-  "Movie",
-  "Lunch",
-  "Salary",
-  "Gift",
-  "Coffee",
-  "Fuel",
-  "Books",
-  "Subscription",
+const expenseCategories = [
+  "Food",
+  "Travel",
+  "Shopping",
+  "Entertainment",
+  "Bills",
+  "Other",
 ];
+
+const incomeCategories = [
+  "Salary",
+  "Freelance",
+  "Business",
+  "Investment",
+  "Gift",
+  "Refund",
+];
+
+const transactionBlueprints = {
+  Expense: {
+    categories: expenseCategories,
+    titles: [
+      "Groceries",
+      "Taxi",
+      "Movie",
+      "Lunch",
+      "Coffee",
+      "Fuel",
+      "Books",
+      "Subscription",
+      "Dinner",
+      "Repair",
+    ],
+  },
+  Income: {
+    categories: incomeCategories,
+    titles: [
+      "Salary",
+      "Freelance Payment",
+      "Client Project",
+      "Investment Return",
+      "Gift",
+      "Refund",
+      "Side Income",
+      "Bonus",
+    ],
+  },
+};
+
+const types = Object.keys(transactionBlueprints);
 
 const getRandomInt = (min, max) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
@@ -33,8 +69,10 @@ const randomDateWithinDays = (days) => {
 
 const buildTransaction = (userId) => {
   const type = getRandomItem(types);
+  const { categories, titles } = transactionBlueprints[type];
   const category = getRandomItem(categories);
-  const amount = getRandomInt(50, 5000);
+  const amount =
+    type === "Income" ? getRandomInt(1000, 15000) : getRandomInt(50, 5000);
   const title = getRandomItem(titles);
 
   return {

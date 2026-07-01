@@ -2,6 +2,10 @@ import prisma from "@/app/lib/prisma";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authoptions } from "@/app/api/auth/[...nextauth]/route";
+import {
+  transactionInputSchema,
+  transactionUpdateSchema,
+} from "../../lib/transaction-schema";
 
 const getUserId = async () => {
   const session = await getServerSession(authoptions);
@@ -48,24 +52,31 @@ export async function POST(req: Request) {
     }
     const body = await req.json();
 
-    if (!body.title || !body.amount || !body.type || !body.category) {
+    const parsed = transactionInputSchema.safeParse(body);
+
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        {
+          error:
+            parsed.error.issues[0]?.message || "Invalid transaction payload",
+        },
         { status: 400 },
       );
     }
+
+    const data = parsed.data;
 
     console.log("body is " + body);
 
     const transaction = await prisma.transaction.create({
       data: {
-        amount: Number(body.amount),
-        type: body.type,
-        category: body.category,
-        description: body.description || null,
+        amount: data.amount,
+        type: data.type,
+        category: data.category,
+        description: data.description || null,
         userid: userId,
-        title: body.title,
-        date: new Date(body.date),
+        title: data.title,
+        date: data.date,
       },
     });
 
@@ -115,18 +126,32 @@ export async function PUT(req: Request) {
 
   const body = await req.json();
   console.log("update body is ", body);
+
+  const parsed = transactionUpdateSchema.safeParse(body);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      {
+        error: parsed.error.issues[0]?.message || "Invalid transaction payload",
+      },
+      { status: 400 },
+    );
+  }
+
+  const data = parsed.data;
+
   const result = await prisma.transaction.updateMany({
     where: {
-      id: body.id,
+      id: data.id,
       userid: userId,
     },
     data: {
-      amount: Number(body.amount),
-      type: body.type,
-      category: body.category,
-      description: body.description || null,
-      title: body.title,
-      date: new Date(body.date),
+      amount: data.amount,
+      type: data.type,
+      category: data.category,
+      description: data.description || null,
+      title: data.title,
+      date: data.date,
     },
   });
 

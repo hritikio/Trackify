@@ -4,6 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import Toast from "@/Components/Toast";
+import {
+  getCategoriesForType,
+  transactionTypes,
+} from "../app/lib/transaction-schema";
 
 type AddTransactionModalProps = {
   isOpen: boolean;
@@ -118,24 +122,11 @@ export default function AddTransactionModal({
               />
 
               <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-teal-500"
-                required
-              >
-                <option value="" disabled>
-                  Select Category
-                </option>
-
-                <option value="Food">Food</option>
-                <option value="Travel">Travel</option>
-                <option value="Shopping">Shopping</option>
-                <option value="Entertainment">Entertainment</option>
-              </select>
-
-              <select
                 value={type}
-                onChange={(e) => setType(e.target.value)}
+                onChange={(e) => {
+                  setType(e.target.value);
+                  setCategory("");
+                }}
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-teal-500"
                 required
               >
@@ -143,8 +134,29 @@ export default function AddTransactionModal({
                   Select Type
                 </option>
 
-                <option value="Income">Income</option>
-                <option value="Expense">Expense</option>
+                {transactionTypes.map((transactionType) => (
+                  <option key={transactionType} value={transactionType}>
+                    {transactionType}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-teal-500"
+                required
+                disabled={!type}
+              >
+                <option value="" disabled>
+                  {type ? `Select ${type} Category` : "Select Type First"}
+                </option>
+
+                {getCategoriesForType(type).map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
 
               <input
