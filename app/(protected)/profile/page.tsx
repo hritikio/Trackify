@@ -4,7 +4,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Button from "@/Components/Button";
 import Toast from "@/Components/Toast";
-import { CircleUserRound } from "lucide-react";
+import { CircleUserRound, Download } from "lucide-react";
 export default function Profile() {
   const { data: session, status, update } = useSession();
   const [name, setName] = useState("");
@@ -15,6 +15,7 @@ export default function Profile() {
     type: "success" | "error";
   } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [showNameForm, setShowNameForm] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
 
@@ -94,6 +95,34 @@ export default function Profile() {
     setConfirmPassword("");
     setShowPasswordForm(false);
     setToast({ message: "Password updated successfully.", type: "success" });
+  };
+
+  const handleExportData = async () => {
+    setToast(null);
+    setIsExporting(true);
+    try {
+      const res = await fetch("/api/profile");
+      if (!res.ok) {
+        throw new Error("Failed to export data");
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "trackify-export.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      setToast({ message: "Data exported successfully.", type: "success" });
+    } catch (err: any) {
+      setToast({
+        message: err.message || "Failed to export data.",
+        type: "error",
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -195,7 +224,15 @@ export default function Profile() {
             </div>
           ) : null}
 
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6 flex justify-center gap-3">
+            <Button
+              onClick={handleExportData}
+              loading={isExporting}
+              Classname="text-sm font-medium bg-indigo-600 flex items-center justify-center gap-2"
+            >
+              <Download size={16} />
+              Export Data
+            </Button>
             <Button
               onClick={handleLogout}
               Classname="text-sm font-medium bg-rose-500"
