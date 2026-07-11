@@ -60,12 +60,14 @@ const getRandomInt = (min, max) =>
 
 const getRandomItem = (items) => items[getRandomInt(0, items.length - 1)];
 
-const randomDateWithinDays = (days) => {
-  const now = new Date();
-  const past = new Date();
-  past.setDate(now.getDate() - getRandomInt(0, days));
-  return past;
+const randomDateInRange = (startDate, endDate) => {
+  const startMs = startDate.getTime();
+  const endMs = endDate.getTime();
+  return new Date(startMs + Math.random() * (endMs - startMs));
 };
+
+const SEED_START = new Date(2026, 6, 1); // July 1
+const SEED_END = new Date(2026, 6, 1, 23, 59, 59, 999); // July 1 included
 
 const buildTransaction = (userId) => {
   const type = getRandomItem(types);
@@ -82,15 +84,15 @@ const buildTransaction = (userId) => {
     category,
     title,
     description: `${title} - ${category}`,
-    date: randomDateWithinDays(120),
+    date: randomDateInRange(SEED_START, SEED_END),
     userid: userId,
     createdAt: new Date(),
   };
 };
 
 const main = async () => {
-  const count = Number(process.env.SEED_COUNT || 50);
-  const email = process.env.SEED_EMAIL || "123@gmail.com";
+  const count = Number(process.env.SEED_COUNT || 10);
+  const email = process.env.SEED_EMAIL || "hkm@gmail.com";
 
   const client = new Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();

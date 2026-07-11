@@ -49,8 +49,15 @@ const RANGE_OPTIONS: RangeOption[] = [
   { key: "all_time", label: "All Time" },
 ];
 
-const PIE_COLORS = ["#f59e0b", "#3b82f6", "#22c55e", "#ef4444", "#8b5cf6"];
-const BAR_COLORS = ["#f59e0b", "#3b82f6", "#22c55e", "#ef4444", "#8b5cf6"];
+const PIE_COLORS = [
+  "#f59e0b",
+  "#3b82f6",
+  "#22c55e",
+  "#ef4444",
+  "#8b5cf6",
+  "#2dd4bf",
+];
+const BAR_COLORS = PIE_COLORS;
 
 const toDate = (value?: string | Date | null) => {
   if (!value) return null;
@@ -386,7 +393,6 @@ export default function ReportsAnalytics({ transactions }: Props) {
                       innerRadius,
                       outerRadius,
                       percent,
-                      index,
                     }) => {
                       const radius =
                         innerRadius + (outerRadius - innerRadius) * 0.6;

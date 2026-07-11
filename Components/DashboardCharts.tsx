@@ -26,7 +26,14 @@ type Props = {
   transactions: TransactionInput[];
 };
 
-const PIE_COLORS = ["#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#64748b"];
+const PIE_COLORS = [
+  "#22c55e",
+  "#3b82f6",
+  "#f59e0b",
+  "#ef4444",
+  "#64748b",
+  "#8B5CF6",
+];
 
 const formatCurrencyValue = (
   value?: number | string | ReadonlyArray<number | string>,
