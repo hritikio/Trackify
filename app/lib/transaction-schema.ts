@@ -23,7 +23,10 @@ export const incomeCategories = [
 const transactionBaseSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
   description: z.string().trim().optional(),
-  amount: z.coerce.number().int("Amount must be a whole number"),
+  amount: z.coerce
+    .number()
+    .int("Amount must be a whole number")
+    .positive("Amount must be positive"),
   date: z.coerce.date(),
 });
 

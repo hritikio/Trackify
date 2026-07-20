@@ -29,6 +29,7 @@ export default function AddTransactionModal({
 
   const [successToast, setSuccessToast] = useState(false);
   const [errorToast, setErrorToast] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -56,6 +57,7 @@ export default function AddTransactionModal({
 
         console.log("STATUS:", response.status);
         console.log("ERROR:", error);
+        setErrorMessage(error.error || "Failed to add transaction. Please try again.");
         setErrorToast(true);
 
         setTimeout(() => {
@@ -63,8 +65,6 @@ export default function AddTransactionModal({
         }, 3000);
 
         return;
-
-        // throw new Error(error.error || "Failed to create transaction");
       }
       setSuccessToast(true);
 
@@ -163,6 +163,7 @@ export default function AddTransactionModal({
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 type="number"
+                min="1"
                 placeholder="Amount"
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-teal-500"
                 required
@@ -202,7 +203,7 @@ export default function AddTransactionModal({
       {errorToast && (
         <Toast
           type="error"
-          message="Failed to add transaction. Please try again."
+          message={errorMessage}
         />
       )}
     </>

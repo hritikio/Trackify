@@ -148,8 +148,9 @@ export default function ActionButton({ transaction }: ActionButtonProps) {
       });
 
       if (!response.ok) {
-        console.error("Failed to update transaction");
-        setEditErrorMessage("Failed to update transaction.");
+        const error = await response.json();
+        console.error("Failed to update transaction", error);
+        setEditErrorMessage(error.error || "Failed to update transaction.");
         setErrorToast(true);
 
         setTimeout(() => {
@@ -278,6 +279,7 @@ export default function ActionButton({ transaction }: ActionButtonProps) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 type="number"
+                min="1"
                 placeholder="Amount"
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-teal-500"
                 required
